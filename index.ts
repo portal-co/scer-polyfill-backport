@@ -1,3 +1,4 @@
+
 let w: WeakMap<ShadowRoot, CustomElementRegistry> = new WeakMap();
 let anyPatched = false;
 for (var x of ["createElement", "createElementNS", "importNode"]) {
@@ -14,7 +15,7 @@ for (var x of ["createElement", "createElementNS", "importNode"]) {
             }
             var x = argArray[argArray.length - 1];
             if (old) {
-                x.customElements = old;
+                x.customElementRegistry = old;
             }
             return Reflect.apply(target, thisArg, argArray);
         },
@@ -24,13 +25,18 @@ if (anyPatched) {
     Element.prototype.attachShadow = new Proxy(Element.prototype.attachShadow, {
         apply(target, thisArg, argArray) {
             let customElements: CustomElementRegistry | undefined;
-            for (var x of ["customElements", "registry"]) {
-                if (x in argArray[0]) {
-                    customElements = argArray[0][x];
-                    delete argArray[0][x];
-                    break;
+            if ('customElementRegistry' in argArray[0]) {
+                customElements = argArray[0].customElementRegistry;
+            } else {
+                for (var x of ["customElements", "registry"]) {
+                    if (x in argArray[0]) {
+                        customElements = argArray[0][x];
+                        delete argArray[0][x];
+                        break;
+                    }
                 }
             }
+
             let old = Reflect.apply(target, thisArg, argArray);
             if (customElements) {
                 w.set(old, customElements);

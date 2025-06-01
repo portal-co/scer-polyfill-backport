@@ -1,6 +1,6 @@
 {
   "name": "@portal-solutions/scer-polyfill-backport",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Scoped Custom Elements Registry back-polyfill",
   "license": "ISC",
   "author": "",
